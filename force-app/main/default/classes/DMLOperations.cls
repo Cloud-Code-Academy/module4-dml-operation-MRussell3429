@@ -39,7 +39,7 @@ public with sharing class DMLOperations {
         // Set some fields on the Account
 
         // Insert the Account into the database
-        List<Account> hwAccounts = [select id from Account where AccountNumber = '11235813' limit 1];
+        List<Account> hwAccounts = [select id from Account where AccountNumber = '11235813' WITH USER_MODE LIMIT 1];
         // Return the Id of the newly created Account
         return hwAccounts[0].Id;
     }
@@ -92,7 +92,7 @@ public with sharing class DMLOperations {
      */
     public static void updateContactLastName(Id contactId, String newLastName) {
         // Retrieve the Contact from the database
-        Contact pal = [SELECT Id FROM Contact WHERE Id = :contactId];
+        Contact pal = [SELECT Id FROM Contact WHERE Id = :contactId WITH USER_MODE];
 
         // Update the Contact's last name
         pal.LastName = newLastName;
@@ -109,7 +109,7 @@ public with sharing class DMLOperations {
      */
     public static void updateOpportunityStage(Id oppId, String newStage) {
         // Retrieve the Opportunity from the database
-        Opportunity Knocks = [SELECT Id FROM Opportunity WHERE Id = :oppId];
+        Opportunity knocks = [SELECT Id FROM Opportunity WHERE Id = :oppId WITH USER_MODE];
         Knocks.StageName = newStage;
         // Update the Opportunity's stage
         Update knocks;
@@ -127,7 +127,7 @@ public with sharing class DMLOperations {
      */
     public static void updateAccountFields(Id accountId, String newName, String newIndustry) {
         // Query the account
-        Account accWithNewIndustry = [SELECT Id FROM Account WHERE Id = :accountId];
+        Account accWithNewIndustry = [SELECT Id FROM Account WHERE Id = :accountId WITH USER_MODE];
         accWithNewIndustry.Name = newName;
         accWithNewIndustry.Industry = newIndustry;
         Update accWithNewIndustry;
@@ -175,7 +175,7 @@ public with sharing class DMLOperations {
         Set <String> oppsSet = new Set<String>();
         oppsSet.addAll(oppNames);
         System.debug('This is the list of names' + oppNames);
-        List <Opportunity> Opps = new List <Opportunity> ();
+        List <Opportunity> opps = new List <Opportunity> ();
         for (String maybeMoney : oppsSet ){
             Opportunity tryForMoney = new Opportunity();
             tryForMoney.accountId = moneySource.Id;
@@ -203,7 +203,7 @@ public with sharing class DMLOperations {
 		// Query for the Account
 
         //For accounts where we found an ID, update.
-		List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName];
+		List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName WITH USER_MODE];
         if (accounts.isEmpty()){
             questionNineAccount.description = 'New Account';
             questionNineAccount.name = accountName;
@@ -236,12 +236,12 @@ public with sharing class DMLOperations {
 	 */
 	public static void upsertAccountsWithContacts(List<Contact> contactsToUpsert) {
         for(Contact indiv : contactsToUpsert){
-            List <Account> indivAccs = [Select id FROM Account where Name = :indiv.LastName LIMIT 1];
+            List <Account> indivAccs = [Select id FROM Account where Name = :indiv.LastName WITH USER_MODE LIMIT 1];
             if(indivAccs.isEmpty() == true){
                 Account createIndivAcc = new Account();
                 createIndivAcc.Name = indiv.lastName;
                 upsert createIndivAcc;
-                indivAccs = [Select id FROM Account where Name = :indiv.LastName LIMIT 1];
+                indivAccs = [Select id FROM Account where Name = :indiv.LastName WITH USER_MODE LIMIT 1];
                 }
             indiv.Accountid = indivAccs[0].id;
             //set the lookups for each individual & related account
@@ -274,7 +274,7 @@ public with sharing class DMLOperations {
         insert totallyRealLeads;
         System.Debug('pre-deleted Leads: '+ totallyRealLeads);
         // Insert the Leads
-        List <Lead> leadsToDelete = [SELECT id FROM lead WHERE name = :leadNames];
+        List <Lead> leadsToDelete = [SELECT id FROM lead WHERE name = :leadNames WITH USER_MODE];
         delete leadsToDelete;
         
         // Delete the Leads
@@ -296,7 +296,7 @@ public with sharing class DMLOperations {
         // Insert the cases
         //Question for Reviewer: this would delete all cases for this account.
         //is there a better way than a query to get the Id for what we just created?
-        List <Case> casesToDelete = [SELECT id FROM Case WHERE accountId = :accountId];
+        List <Case> casesToDelete = [SELECT id FROM Case WHERE accountId = :accountId WITH USER_MODE];
         delete casesToDelete;
         // Delete the cases
     }
